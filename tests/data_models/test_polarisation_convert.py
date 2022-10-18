@@ -1,7 +1,10 @@
-""" Unit processing_components for polarisation_convert
-
+# pylint: disable=too-many-public-methods,
+# pylint: disable=missing-function-docstring,invalid-name
 
 """
+Unit processing_components for polarisation_convert
+"""
+
 import unittest
 
 import numpy
@@ -10,15 +13,18 @@ from numpy.testing import assert_array_almost_equal
 
 from src.ska_sdp_datamodels.polarisation_convert import (
     congruent_polarisation,
-    correlate_polarisation,
-    convert_pol_frame,
     convert_circular_to_stokes,
-    convert_stokes_to_circular,
     convert_linear_to_stokes,
+    convert_pol_frame,
+    convert_stokes_to_circular,
     convert_stokes_to_linear,
+    correlate_polarisation,
     polarisation_frame_from_names,
 )
-from src.ska_sdp_datamodels.polarisation_data_models import ReceptorFrame, PolarisationFrame
+from src.ska_sdp_datamodels.polarisation_data_models import (
+    PolarisationFrame,
+    ReceptorFrame,
+)
 
 
 class TestPolarisation(unittest.TestCase):
@@ -66,7 +72,9 @@ class TestPolarisation(unittest.TestCase):
     def test_correlate(self):
         for frame in ["linear", "circular", "stokesI"]:
             rec_frame = ReceptorFrame(frame)
-            assert correlate_polarisation(rec_frame) == PolarisationFrame(frame)
+            assert correlate_polarisation(rec_frame) == PolarisationFrame(
+                frame
+            )
 
     def test_congruent(self):
         for frame in ["linear", "circular", "stokesI"]:
@@ -97,7 +105,7 @@ class TestPolarisation(unittest.TestCase):
     def test_extract_polarisation_frame_fail(self):
         with self.assertRaises(ValueError):
             fake_name = ["foo", "bar"]
-            recovered_pol = polarisation_frame_from_names(fake_name)
+            polarisation_frame_from_names(fake_name)
 
     def test_stokes_linear_conversion(self):
         stokes = numpy.array([1.0, 0.0, 0.0, 0.0])
@@ -112,7 +120,9 @@ class TestPolarisation(unittest.TestCase):
 
         stokes = numpy.array([0.0, 1.0, 0.0, 0.0])
         linear = convert_stokes_to_linear(stokes, 0)
-        assert_array_almost_equal(linear, numpy.array([1.0 + 0j, 0j, 0j, -1.0 + 0j]))
+        assert_array_almost_equal(
+            linear, numpy.array([1.0 + 0j, 0j, 0j, -1.0 + 0j])
+        )
 
         stokes = numpy.array([0.0, 0.0, 1.0, 0.0])
         linear = convert_stokes_to_linear(stokes, 0)
@@ -129,7 +139,8 @@ class TestPolarisation(unittest.TestCase):
         stokes = numpy.array([1.0, -0.8, 0.2, 0.01])
         linear = convert_stokes_to_linear(stokes, 0)
         assert_array_almost_equal(
-            linear, numpy.array([0.2 + 0.0j, 0.2 + 0.01j, 0.2 - 0.01j, 1.8 + 0.0j])
+            linear,
+            numpy.array([0.2 + 0.0j, 0.2 + 0.01j, 0.2 - 0.01j, 1.8 + 0.0j]),
         )
 
     def test_stokes_circular_conversion(self):
@@ -141,11 +152,15 @@ class TestPolarisation(unittest.TestCase):
 
         stokes = numpy.array([1.0, 0.0])
         circularcp = convert_stokes_to_circular(stokes, 0)
-        assert_array_almost_equal(circularcp, numpy.array([1.0 + 0j, 1.0 + 0j]))
+        assert_array_almost_equal(
+            circularcp, numpy.array([1.0 + 0j, 1.0 + 0j])
+        )
 
         stokes = numpy.array([0.0, 1.0, 0.0, 0.0])
         circular = convert_stokes_to_circular(stokes, 0)
-        assert_array_almost_equal(circular, numpy.array([0.0 + 0j, -1j, -1j, 0.0 + 0j]))
+        assert_array_almost_equal(
+            circular, numpy.array([0.0 + 0j, -1j, -1j, 0.0 + 0j])
+        )
 
         stokes = numpy.array([0.0, 0.0, 1.0, 0.0])
         circular = convert_stokes_to_circular(stokes, 0)
@@ -162,13 +177,16 @@ class TestPolarisation(unittest.TestCase):
         stokes = numpy.array([1.0, -0.8, 0.2, 0.01])
         linear = convert_stokes_to_circular(stokes, 0)
         assert_array_almost_equal(
-            linear, numpy.array([1.01 + 0.0j, 0.2 + 0.8j, -0.2 + 0.8j, 0.99 + 0.0j])
+            linear,
+            numpy.array([1.01 + 0.0j, 0.2 + 0.8j, -0.2 + 0.8j, 0.99 + 0.0j]),
         )
 
     def test_stokes_linear_stokes_conversion(self):
         stokes = numpy.array([1, 0.5, 0.2, -0.1])
         linear = convert_stokes_to_linear(stokes, 0)
-        assert_array_almost_equal(convert_linear_to_stokes(linear, 0).real, stokes, 15)
+        assert_array_almost_equal(
+            convert_linear_to_stokes(linear, 0).real, stokes, 15
+        )
 
     def test_stokes_linearnp_stokesIQ_conversion(self):
         stokes = numpy.array([1, 0.5])

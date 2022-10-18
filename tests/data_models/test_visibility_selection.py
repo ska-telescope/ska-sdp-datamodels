@@ -1,5 +1,8 @@
-"""Unit tests for visibility selectors
+# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=no-name-in-module,import-error
 
+"""
+Unit tests for visibility selectors
 """
 import logging
 import unittest
@@ -8,9 +11,9 @@ import astropy.units as u
 import numpy
 from astropy.coordinates import SkyCoord
 
-from src.ska_sdp_datamodels.polarisation_data_models import PolarisationFrame
 from src.processing_components.simulation import create_named_configuration
 from src.processing_components.visibility.base import create_visibility
+from src.ska_sdp_datamodels.polarisation_data_models import PolarisationFrame
 
 log = logging.getLogger("src-logger")
 
@@ -28,8 +31,9 @@ class TestVisibilitySelectors(unittest.TestCase):
         self.flux = numpy.array([f, 0.8 * f, 0.6 * f])
         self.polarisation_frame = PolarisationFrame("linear")
 
-        # The phase centre is absolute and the component is specified relative (for now).
-        # This means that the component should end up at the position phasecentre+compredirection
+        # The phase centre is absolute and the component
+        # is specified relative (for now). This means that the
+        # component should end up at the position phasecentre+compredirection
         self.phasecentre = SkyCoord(
             ra=+180.0 * u.deg, dec=-35.0 * u.deg, frame="icrs", equinox="J2000"
         )
@@ -173,7 +177,6 @@ class TestVisibilitySelectors(unittest.TestCase):
             phasecentre=self.phasecentre,
             weight=1.0,
         )
-        before = bvis["flags"].sum()
         uvmin = 100.0
         uvmax = 20000.0
 

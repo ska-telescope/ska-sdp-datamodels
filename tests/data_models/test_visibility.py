@@ -1,9 +1,18 @@
+# pylint: disable=no-name-in-module,import-error
+
+"""
+Unit tests for Visibility object
+"""
+
+import astropy.units as u
 import numpy
 from astropy.coordinates import SkyCoord
-import astropy.units as u
 
-from src.ska_sdp_datamodels import PolarisationFrame
-from src.processing_components import create_visibility, create_named_configuration
+from ska_sdp_datamodels.polarisation_data_models import PolarisationFrame
+from src.processing_components import (
+    create_named_configuration,
+    create_visibility,
+)
 
 
 def test_visibility_copy():

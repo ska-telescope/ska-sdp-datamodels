@@ -8,7 +8,8 @@ __all__ = ["ReceptorFrame", "PolarisationFrame"]
 class ReceptorFrame:
     """Define polarisation frames for receptors
 
-    circular, linear, and stokesI. The latter is non-physical but useful for some types of testing.
+    circular, linear, and stokesI. The latter is
+    non-physical but useful for some types of testing.
     """
 
     rec_frames = {

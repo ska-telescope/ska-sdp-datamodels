@@ -1,7 +1,10 @@
-"""
-    Unit tests for functions in data_convert_persist.
-    The functions facilitate persistence of data models using HDF5
+# pylint: disable=attribute-defined-outside-init,invalid-name,
+# pylint: disable=missing-function-docstring
+# pylint: disable=no-name-in-module,import-error
 
+"""
+Unit tests for functions in data_convert_persist.
+The functions facilitate persistence of data models using HDF5
 """
 
 import logging
@@ -12,43 +15,53 @@ import numpy
 import xarray
 from astropy.coordinates import SkyCoord
 
-from src.ska_sdp_datamodels.data_convert_persist import (
-    import_visibility_from_hdf5,
-    export_visibility_to_hdf5,
-    import_gaintable_from_hdf5,
-    export_gaintable_to_hdf5,
-    import_flagtable_from_hdf5,
-    export_flagtable_to_hdf5,
-    import_pointingtable_from_hdf5,
-    export_pointingtable_to_hdf5,
-    import_image_from_hdf5,
-    export_image_to_hdf5,
-    import_skycomponent_from_hdf5,
-    export_skycomponent_to_hdf5,
-    import_skymodel_from_hdf5,
-    export_skymodel_to_hdf5,
-    import_griddata_from_hdf5,
-    export_griddata_to_hdf5,
-    import_convolutionfunction_from_hdf5,
-    export_convolutionfunction_to_hdf5,
-)
-from src.ska_sdp_datamodels.memory_data_models import SkyComponent, SkyModel
-from src.ska_sdp_datamodels.polarisation_data_models import PolarisationFrame
 from src.processing_components.calibration.operations import (
     create_gaintable_from_visibility,
 )
 from src.processing_components.calibration.pointing import (
     create_pointingtable_from_visibility,
 )
-from src.processing_components.flagging.base import create_flagtable_from_visibility
-from src.processing_components.griddata import create_convolutionfunction_from_image
-from src.processing_components.griddata.operations import create_griddata_from_image
+from src.processing_components.flagging.base import (
+    create_flagtable_from_visibility,
+)
+from src.processing_components.griddata import (
+    create_convolutionfunction_from_image,
+)
+from src.processing_components.griddata.operations import (
+    create_griddata_from_image,
+)
 from src.processing_components.image import create_image
 from src.processing_components.imaging import dft_skycomponent_visibility
-from src.processing_components.simulation import create_named_configuration
-from src.processing_components.simulation import simulate_gaintable
-from src.processing_components.simulation.pointing import simulate_pointingtable
+from src.processing_components.simulation import (
+    create_named_configuration,
+    simulate_gaintable,
+)
+from src.processing_components.simulation.pointing import (
+    simulate_pointingtable,
+)
 from src.processing_components.visibility.base import create_visibility
+from src.ska_sdp_datamodels.data_convert_persist import (
+    export_convolutionfunction_to_hdf5,
+    export_flagtable_to_hdf5,
+    export_gaintable_to_hdf5,
+    export_griddata_to_hdf5,
+    export_image_to_hdf5,
+    export_pointingtable_to_hdf5,
+    export_skycomponent_to_hdf5,
+    export_skymodel_to_hdf5,
+    export_visibility_to_hdf5,
+    import_convolutionfunction_from_hdf5,
+    import_flagtable_from_hdf5,
+    import_gaintable_from_hdf5,
+    import_griddata_from_hdf5,
+    import_image_from_hdf5,
+    import_pointingtable_from_hdf5,
+    import_skycomponent_from_hdf5,
+    import_skymodel_from_hdf5,
+    import_visibility_from_hdf5,
+)
+from src.ska_sdp_datamodels.memory_data_models import SkyComponent, SkyModel
+from src.ska_sdp_datamodels.polarisation_data_models import PolarisationFrame
 
 log = logging.getLogger("src-logger")
 
@@ -59,8 +72,9 @@ class TestDataModelHelpers(unittest.TestCase):
     def _data_model_equals(self, ds_new, ds_ref):
         """Check if two xarray objects are identical except to values
 
-        Precision in lost in HDF files at close to the machine precision so we cannot
-        reliably use xarray.equals(). So this function is specific to this set of tests
+        Precision in lost in HDF files at close to the machine
+        precision so we cannot reliably use xarray.equals().
+        So this function is specific to this set of tests
 
         Throws AssertionError or returns True
 
@@ -84,9 +98,7 @@ class TestDataModelHelpers(unittest.TestCase):
         return True
 
     def setUp(self):
-        from src.processing_components.parameters import (
-            rascil_path,
-        )
+        from src.processing_components.parameters import rascil_path
 
         self.results_dir = rascil_path("test_results")
 
@@ -98,8 +110,10 @@ class TestDataModelHelpers(unittest.TestCase):
         f = numpy.array([100.0, 20.0, -10.0, 1.0])
         self.flux = numpy.array([f, 0.8 * f, 0.6 * f])
 
-        # The phase centre is absolute and the component is specified relative (for now).
-        # This means that the component should end up at the position phasecentre+compredirection
+        # The phase centre is absolute and the component
+        # is specified relative (for now).
+        # This means that the component should end up at
+        # the position phasecentre+compredirection
         self.phasecentre = SkyCoord(
             ra=+180.0 * u.deg, dec=-35.0 * u.deg, frame="icrs", equinox="J2000"
         )
@@ -107,7 +121,9 @@ class TestDataModelHelpers(unittest.TestCase):
             ra=+181.0 * u.deg, dec=-35.0 * u.deg, frame="icrs", equinox="J2000"
         )
         self.comp = SkyComponent(
-            direction=self.compabsdirection, frequency=self.frequency, flux=self.flux
+            direction=self.compabsdirection,
+            frequency=self.frequency,
+            flux=self.flux,
         )
 
         self.verbose = False
@@ -128,10 +144,10 @@ class TestDataModelHelpers(unittest.TestCase):
             print(self.vis.configuration)
         export_visibility_to_hdf5(
             self.vis,
-            "%s/test_data_convert_persist_visibility.hdf" % self.results_dir,
+            f"{self.results_dir}/test_data_convert_persist_visibility.hdf",
         )
         newvis = import_visibility_from_hdf5(
-            "%s/test_data_convert_persist_visibility.hdf" % self.results_dir
+            f"{self.results_dir}/test_data_convert_persist_visibility.hdf"
         )
         assert self._data_model_equals(newvis, self.vis)
 
@@ -152,10 +168,10 @@ class TestDataModelHelpers(unittest.TestCase):
         if self.verbose:
             print(gt)
         export_gaintable_to_hdf5(
-            gt, "%s/test_data_convert_persist_gaintable.hdf" % self.results_dir
+            gt, f"{self.results_dir}/test_data_convert_persist_gaintable.hdf"
         )
         newgt = import_gaintable_from_hdf5(
-            "%s/test_data_convert_persist_gaintable.hdf" % self.results_dir
+            f"{self.results_dir}/test_data_convert_persist_gaintable.hdf"
         )
         assert self._data_model_equals(newgt, gt)
 
@@ -173,10 +189,10 @@ class TestDataModelHelpers(unittest.TestCase):
         if self.verbose:
             print(ft)
         export_flagtable_to_hdf5(
-            ft, "%s/test_data_convert_persist_flagtable.hdf" % self.results_dir
+            ft, f"{self.results_dir}/test_data_convert_persist_flagtable.hdf"
         )
         newft = import_flagtable_from_hdf5(
-            "%s/test_data_convert_persist_flagtable.hdf" % self.results_dir
+            f"{self.results_dir}/test_data_convert_persist_flagtable.hdf"
         )
         assert self._data_model_equals(newft, ft)
 
@@ -195,10 +211,11 @@ class TestDataModelHelpers(unittest.TestCase):
         if self.verbose:
             print(pt)
         export_pointingtable_to_hdf5(
-            pt, "%s/test_data_convert_persist_pointingtable.hdf" % self.results_dir
+            pt,
+            f"{self.results_dir}/test_data_convert_persist_pointingtable.hdf",
         )
         newpt = import_pointingtable_from_hdf5(
-            "%s/test_data_convert_persist_pointingtable.hdf" % self.results_dir
+            f"{self.results_dir}/test_data_convert_persist_pointingtable.hdf"
         )
         assert self._data_model_equals(newpt, pt)
 
@@ -211,15 +228,18 @@ class TestDataModelHelpers(unittest.TestCase):
         )
         im["pixels"].data[...] = 1.0
         export_image_to_hdf5(
-            im, "%s/test_data_convert_persist_image.hdf" % self.results_dir
+            im, f"{self.results_dir}/test_data_convert_persist_image.hdf"
         )
         newim = import_image_from_hdf5(
-            "%s/test_data_convert_persist_image.hdf" % self.results_dir
+            f"{self.results_dir}/test_data_convert_persist_image.hdf"
         )
         assert self._data_model_equals(newim, im)
 
     def test_readwriteimage_zarr(self):
-        """Test to see if an image can be written to and read from a zarr file"""
+        """
+        Test to see if an image can be written to
+        and read from a zarr file
+        """
         im = create_image(
             phasecentre=self.phasecentre,
             frequency=self.frequency,
@@ -236,7 +256,7 @@ class TestDataModelHelpers(unittest.TestCase):
         im.attrs["clean_beam"] = ""
 
         store = os.path.expanduser(
-            "%s/test_data_convert_persist_image.zarr" % self.results_dir
+            f"{self.results_dir}/test_data_convert_persist_image.zarr"
         )
         im.to_zarr(
             store=store,
@@ -250,10 +270,10 @@ class TestDataModelHelpers(unittest.TestCase):
     def test_readwriteskycomponent(self):
         export_skycomponent_to_hdf5(
             self.comp,
-            "%s/test_data_convert_persist_skycomponent.hdf" % self.results_dir,
+            f"{self.results_dir}/test_data_convert_persist_skycomponent.hdf",
         )
         newsc = import_skycomponent_from_hdf5(
-            "%s/test_data_convert_persist_skycomponent.hdf" % self.results_dir
+            f"{self.results_dir}/test_data_convert_persist_skycomponent.hdf"
         )
 
         assert newsc.flux.shape == self.comp.flux.shape
@@ -278,10 +298,10 @@ class TestDataModelHelpers(unittest.TestCase):
         gt = create_gaintable_from_visibility(self.vis, timeslice="auto")
         sm = SkyModel(components=[self.comp], image=im, gaintable=gt)
         export_skymodel_to_hdf5(
-            sm, "%s/test_data_convert_persist_skymodel.hdf" % self.results_dir
+            sm, f"{self.results_dir}/test_data_convert_persist_skymodel.hdf"
         )
         newsm = import_skymodel_from_hdf5(
-            "%s/test_data_convert_persist_skymodel.hdf" % self.results_dir
+            f"{self.results_dir}/test_data_convert_persist_skymodel.hdf"
         )
 
         assert newsm.components[0].flux.shape == self.comp.flux.shape
@@ -316,10 +336,12 @@ class TestDataModelHelpers(unittest.TestCase):
             print(cf)
         export_convolutionfunction_to_hdf5(
             cf,
-            "%s/test_data_convert_persist_convolutionfunction.hdf" % self.results_dir,
+            f"{self.results_dir}/"
+            f"test_data_convert_persist_convolutionfunction.hdf",
         )
         newcf = import_convolutionfunction_from_hdf5(
-            "%s/test_data_convert_persist_convolutionfunction.hdf" % self.results_dir
+            f"{self.results_dir}/"
+            f"test_data_convert_persist_convolutionfunction.hdf"
         )
 
         assert self._data_model_equals(newcf, cf)

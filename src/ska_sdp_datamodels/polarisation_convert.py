@@ -13,17 +13,20 @@ or::
 
     stokes = numpy.array([1, 0.5, 0.2, -0.1])
     circular = convert_stokes_to_circular(stokes)
-    
-These function operate on Numpy arrays. These are packaged for use in Images. The Image functions are
-probably more useful.
 
+These function operate on Numpy arrays.
+These are packaged for use in Images.
+The Image functions are probably more useful.
 """
 
 import logging
 
 import numpy
 
-from src.ska_sdp_datamodels.polarisation_data_models import ReceptorFrame, PolarisationFrame
+from src.ska_sdp_datamodels.polarisation_data_models import (
+    PolarisationFrame,
+    ReceptorFrame,
+)
 
 log = logging.getLogger("src-logger")
 
@@ -296,7 +299,9 @@ def convert_pol_frame(
         elif opf == PolarisationFrame("stokesIQUV"):
             return convert_stokesI_to_stokesIQUV(polvec)
 
-    raise ValueError("Unknown polarisation conversion: {} to {}".format(ipf, opf))
+    raise ValueError(
+        "Unknown polarisation conversion: {} to {}".format(ipf, opf)
+    )
 
 
 def correlate_polarisation(rec_frame: ReceptorFrame):
@@ -312,7 +317,9 @@ def correlate_polarisation(rec_frame: ReceptorFrame):
     elif rec_frame == ReceptorFrame("stokesI"):
         correlation = PolarisationFrame("stokesI")
     else:
-        raise ValueError("Unknown receptor frame %s for correlation" % rec_frame)
+        raise ValueError(
+            "Unknown receptor frame %s for correlation" % rec_frame
+        )
 
     return correlation
 

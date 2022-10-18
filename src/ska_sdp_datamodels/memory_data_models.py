@@ -1,5 +1,5 @@
-"""The data models used in RASCIL:
-
+"""
+The data models used in RASCIL:
 """
 
 __all__ = [
@@ -30,8 +30,15 @@ from astropy.time import Time
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from astropy.wcs import FITSFixedWarning
 
-from src.ska_sdp_datamodels.polarisation_data_models import ReceptorFrame, PolarisationFrame
-from src.ska_sdp_datamodels.xarray_coordinate_support import image_wcs, griddata_wcs, cf_wcs
+from src.ska_sdp_datamodels.polarisation_data_models import (
+    PolarisationFrame,
+    ReceptorFrame,
+)
+from src.ska_sdp_datamodels.xarray_coordinate_support import (
+    cf_wcs,
+    griddata_wcs,
+    image_wcs,
+)
 
 warnings.simplefilter("ignore", FITSFixedWarning)
 warnings.simplefilter("ignore", AstropyDeprecationWarning)
@@ -54,7 +61,9 @@ class XarrayAccessorMixin:
         """Return string describing sizes of data variables
         :return: string
         """
-        s = "Dataset size: {:.3f} GB\n".format(self._obj.nbytes / 1024 / 1024 / 1024)
+        s = "Dataset size: {:.3f} GB\n".format(
+            self._obj.nbytes / 1024 / 1024 / 1024
+        )
         for var in self._obj.data_vars:
             s += "\t[{}]: \t{:.3f} GB\n".format(
                 var, self._obj[var].nbytes / 1024 / 1024 / 1024
@@ -96,7 +105,8 @@ class QualityAssessment:
 
 
 class Configuration(xarray.Dataset):
-    """A Configuration describes an array configuration.
+    """
+    A Configuration describes an array configuration.
 
     Here is an example::
 
@@ -119,8 +129,7 @@ class Configuration(xarray.Dataset):
             location:           (5109237.71471275, 2006795.66194638, -3239109.1838011...
             receptor_frame:     <src.ska_sdp_datamodels.polarisation.ReceptorFrame object...
             frame:
-
-    """
+    """  # noqa: E501
 
     __slots__ = ()
 
@@ -148,13 +157,15 @@ class Configuration(xarray.Dataset):
         vp_type=None,
     ):
 
-        """Configuration object describing data for processing
+        """
+        Configuration object describing data for processing
 
         :param name: Name of configuration e.g. 'LOWR3'
         :param location: Location of array as an astropy EarthLocation
         :param names: Names of the dishes/stations
         :param xyz: Geocentric coordinates of dishes/stations
-        :param mount: Mount types of dishes/stations 'altaz' | 'xy' | 'equatorial'
+        :param mount: Mount types of dishes/stations
+                      'altaz' | 'xy' | 'equatorial'
         :param frame: Reference frame of locations
         :param receptor_frame: Receptor frame
         :param diameter: Diameters of dishes/stations (m)
@@ -180,7 +191,9 @@ class Configuration(xarray.Dataset):
         datavars["names"] = xarray.DataArray(
             names, coords={"id": list(range(nants))}, dims=["id"]
         )
-        datavars["xyz"] = xarray.DataArray(xyz, coords=coords, dims=["id", "spatial"])
+        datavars["xyz"] = xarray.DataArray(
+            xyz, coords=coords, dims=["id", "spatial"]
+        )
         datavars["diameter"] = xarray.DataArray(
             diameter, coords={"id": list(range(nants))}, dims=["id"]
         )
@@ -233,7 +246,8 @@ class ConfigurationAccessor(XarrayAccessorMixin):
 
 
 class GainTable(xarray.Dataset):
-    """Gain table with: time, antenna,  weight columns
+    """
+    Gain table with: time, antenna,  weight columns
 
     The weight is usually that output from gain solvers.
 
@@ -258,8 +272,7 @@ class GainTable(xarray.Dataset):
             receptor_frame:     <src.ska_sdp_datamodels.polarisation.ReceptorFrame object...
             phasecentre:        <SkyCoord (ICRS): (ra, dec) in deg    (180., -35.)>
             configuration:      <xarray.Configuration> Dimensions:   (id: 115, spati...
-
-    """
+    """  # noqa: E501
 
     __slots__ = ()
 
@@ -285,7 +298,8 @@ class GainTable(xarray.Dataset):
         configuration=None,
         jones_type="T",
     ):
-        """Create a gaintable from arrays
+        """
+        Create a gaintable from arrays
 
         The definition of gain is:
 
@@ -314,17 +328,20 @@ class GainTable(xarray.Dataset):
 
         datavars = dict()
         datavars["gain"] = xarray.DataArray(
-            gain, dims=["time", "antenna", "frequency", "receptor1", "receptor2"]
+            gain,
+            dims=["time", "antenna", "frequency", "receptor1", "receptor2"],
         )
         datavars["weight"] = xarray.DataArray(
-            weight, dims=["time", "antenna", "frequency", "receptor1", "receptor2"]
+            weight,
+            dims=["time", "antenna", "frequency", "receptor1", "receptor2"],
         )
         datavars["residual"] = xarray.DataArray(
             residual, dims=["time", "frequency", "receptor1", "receptor2"]
         )
         datavars["interval"] = xarray.DataArray(interval, dims=["time"])
         datavars["datetime"] = xarray.DataArray(
-            Time(time / 86400.0, format="mjd", scale="utc").datetime64, dims="time"
+            Time(time / 86400.0, format="mjd", scale="utc").datetime64,
+            dims="time",
         )
         attrs = dict()
         attrs["rascil_data_model"] = "GainTable"
@@ -384,7 +401,9 @@ class GainTable(xarray.Dataset):
             "medianabs-phase": numpy.median(pgt),
             "residual": numpy.max(rgt),
         }
-        qa = QualityAssessment(origin="qa_gain_table", data=data, context=context)
+        qa = QualityAssessment(
+            origin="qa_gain_table", data=data, context=context
+        )
         return qa
 
 
@@ -420,7 +439,9 @@ class GainTableAccessor(XarrayAccessorMixin):
 
 
 class PointingTable(xarray.Dataset):
-    """Pointing table with ska_sdp_datamodels: time, antenna, offset[:, chan, rec, 2], weight columns
+    """
+    Pointing table with ska_sdp_datamodels:
+    time, antenna, offset[:, chan, rec, 2], weight columns
 
     Here is an example::
 
@@ -445,8 +466,7 @@ class PointingTable(xarray.Dataset):
             pointing_frame:     azel
             pointingcentre:     <SkyCoord (ICRS): (ra, dec) in deg    (180., -35.)>
             configuration:      <xarray.Configuration> Dimensions:   (id: 115, spati...
-
-    """
+    """  # noqa: E501
 
     __slots__ = ()
 
@@ -500,7 +520,8 @@ class PointingTable(xarray.Dataset):
 
         datavars = dict()
         datavars["pointing"] = xarray.DataArray(
-            pointing, dims=["time", "antenna", "frequency", "receptor", "angle"]
+            pointing,
+            dims=["time", "antenna", "frequency", "receptor", "angle"],
         )
         datavars["nominal"] = xarray.DataArray(
             nominal, dims=["time", "antenna", "frequency", "receptor", "angle"]
@@ -513,7 +534,8 @@ class PointingTable(xarray.Dataset):
         )
         datavars["interval"] = xarray.DataArray(interval, dims=["time"])
         datavars["datetime"] = xarray.DataArray(
-            Time(time / 86400.0, format="mjd", scale="utc").datetime64, dims="time"
+            Time(time / 86400.0, format="mjd", scale="utc").datetime64,
+            dims="time",
         )
 
         attrs = dict()
@@ -570,7 +592,9 @@ class PointingTable(xarray.Dataset):
             "medianabs-phase": numpy.median(ppt),
             "residual": numpy.max(self.residual),
         }
-        qa = QualityAssessment(origin="qa_pointingtable", data=data, context=context)
+        qa = QualityAssessment(
+            origin="qa_pointingtable", data=data, context=context
+        )
         return qa
 
 
@@ -622,9 +646,7 @@ class Image(xarray.Dataset):
         Attributes:
             rascil_data_model:  Image
             frame:              icrs
-
-
-    """
+    """  # noqa: E501
 
     __slots__ = ()
 
@@ -637,11 +659,13 @@ class Image(xarray.Dataset):
         super().__init__(data_vars, coords=coords, attrs=attrs)
 
     @classmethod
-    def constructor(cls, data, polarisation_frame=None, wcs=None, clean_beam=None):
+    def constructor(
+        cls, data, polarisation_frame=None, wcs=None, clean_beam=None
+    ):
         """Create an Image
 
-        Note that the spatial coordinates x, y are linear. ra, dec coordinates can be
-        added later.
+        Note that the spatial coordinates x, y are linear.
+        ra, dec coordinates can be added later.
 
         The addition of ra, dec grid enables selections such as:
 
@@ -657,7 +681,8 @@ class Image(xarray.Dataset):
         :param data: pixel values
         :param polarisation_frame: as a PolarisationFrame object
         :param wcs: WCS object
-        :param clean_beam: dict e.g. {"bmaj":0.1, "bmin":0.05, "bpa":-60.0}. Units are deg, deg, deg
+        :param clean_beam: dict e.g. {"bmaj":0.1, "bmin":0.05, "bpa":-60.0}.
+                Units are deg, deg, deg
         :return: Image (i.e. xarray.Dataset)
         """
         nchan, npol, ny, nx = data.shape
@@ -675,17 +700,22 @@ class Image(xarray.Dataset):
             "frequency": ("frequency", frequency),
             "polarisation": ("polarisation", polarisation_frame.names),
             "y": numpy.linspace(
-                dec - cellsize * ny / 2, dec + cellsize * ny / 2, ny, endpoint=False
+                dec - cellsize * ny / 2,
+                dec + cellsize * ny / 2,
+                ny,
+                endpoint=False,
             ),
             "x": numpy.linspace(
-                ra - cellsize * nx / 2, ra + cellsize * nx / 2, nx, endpoint=False
+                ra - cellsize * nx / 2,
+                ra + cellsize * nx / 2,
+                nx,
+                endpoint=False,
             ),
         }
 
-        assert (
-            data.shape[0] == nchan
-        ), "Number of frequency channels {} and data shape {} are incompatible".format(
-            len(frequency), data.shape
+        assert data.shape[0] == nchan, (
+            "Number of frequency channels {} and data "
+            "shape {} are incompatible".format(len(frequency), data.shape)
         )
         assert (
             data.shape[1] == npol
@@ -750,9 +780,12 @@ class Image(xarray.Dataset):
 
         if not canonical:
             log.debug(
-                "Image: is_canonical: Image is not canonical 4D image with axes RA---SIN, DEC--SIN, STOKES, FREQ"
+                "Image: is_canonical: Image is not canonical 4D image "
+                "with axes RA---SIN, DEC--SIN, STOKES, FREQ"
             )
-            log.debug("Image: is_canonical: axes are: {}".format(wcs.wcs.ctype))
+            log.debug(
+                "Image: is_canonical: axes are: {}".format(wcs.wcs.ctype)
+            )
 
         return canonical
 
@@ -776,19 +809,30 @@ class Image(xarray.Dataset):
                 and "bpa" in clean_beam.keys()
             ):
                 header.append(
-                    fits.Card("BMAJ", clean_beam["bmaj"], "[deg] CLEAN beam major axis")
-                )
-                header.append(
-                    fits.Card("BMIN", clean_beam["bmin"], "[deg] CLEAN beam minor axis")
+                    fits.Card(
+                        "BMAJ",
+                        clean_beam["bmaj"],
+                        "[deg] CLEAN beam major axis",
+                    )
                 )
                 header.append(
                     fits.Card(
-                        "BPA", clean_beam["bpa"], "[deg] CLEAN beam position angle"
+                        "BMIN",
+                        clean_beam["bmin"],
+                        "[deg] CLEAN beam minor axis",
+                    )
+                )
+                header.append(
+                    fits.Card(
+                        "BPA",
+                        clean_beam["bpa"],
+                        "[deg] CLEAN beam position angle",
                     )
                 )
             else:
                 log.warning(
-                    f"export_to_fits: clean_beam is incompletely specified: {clean_beam}, not writing"
+                    f"export_to_fits: clean_beam is incompletely "
+                    f"specified: {clean_beam}, not writing"
                 )
         if self["pixels"].data.dtype == "complex":
             fits.writeto(
@@ -808,7 +852,8 @@ class Image(xarray.Dataset):
     def qa_image(self, context="") -> QualityAssessment:
         """Assess the quality of an image
 
-        QualityAssessment is a standard set of statistics of an image; max, min, maxabs, rms, sum, medianabs, medianabsdevmedian, median
+        QualityAssessment is a standard set of statistics of an image;
+        max, min, maxabs, rms, sum, medianabs, medianabsdevmedian, median
 
         :return: QualityAssessment
         """
@@ -901,15 +946,17 @@ class ImageAccessor(XarrayAccessorMixin):
 
 class GridData(xarray.Dataset):
     """Class to hold Gridded data for Fourier processing
-    - Has four or more coordinates: [chan, pol, z, y, x] where x can be u, l; y can be v, m; z can be w, n
+    - Has four or more coordinates: [chan, pol, z, y, x]
+    where x can be u, l; y can be v, m; z can be w, n
 
     The conventions for indexing in WCS and numpy are opposite.
     - In astropy.wcs, the order is (longitude, latitude, polarisation, frequency)
     - in numpy, the order is (frequency, polarisation, depth, latitude, longitude)
 
     .. warning::
-        The polarisation_frame is kept in two places, the WCS and the polarisation_frame
-        variable. The latter should be considered definitive.
+        The polarisation_frame is kept in two places, the
+        WCS and the polarisation_frame variable.
+        The latter should be considered definitive.
 
     Here is an example::
 
@@ -927,9 +974,7 @@ class GridData(xarray.Dataset):
             pixels        (chan, pol, m, l) float64 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0
         Attributes:
             rascil_data_model:  Image
-
-
-    """
+    """  # noqa: E501
 
     __slots__ = ()
 
@@ -964,8 +1009,12 @@ class GridData(xarray.Dataset):
         coords = {
             "frequency": frequency,
             "polarisation": polarisation_frame.names,
-            "v": numpy.linspace(cv - dv * nv / 2, cv + dv * nv / 2, nv, endpoint=False),
-            "u": numpy.linspace(cu - du * nu / 2, cu + du * nu / 2, nu, endpoint=False),
+            "v": numpy.linspace(
+                cv - dv * nv / 2, cv + dv * nv / 2, nv, endpoint=False
+            ),
+            "u": numpy.linspace(
+                cu - du * nu / 2, cu + du * nu / 2, nu, endpoint=False
+            ),
         }
 
         attrs = dict()
@@ -1058,15 +1107,21 @@ class GridDataAccessor(XarrayAccessorMixin):
 
 
 class ConvolutionFunction(xarray.Dataset):
-    """Class to hold Convolution function for Fourier processing
-    - Has four or more coordinates: [chan, pol, z, y, x] where x can be u, l; y can be v, m; z can be w, n
+    """
+    Class to hold Convolution function for Fourier processing
+    - Has four or more coordinates: [chan, pol, z, y, x]
+    where x can be u, l; y can be v, m; z can be w, n
 
-    The cf has axes [chan, pol, dy, dx, y, x] where z, y, x are spatial axes in either sky or Fourier plane. The
-    order in the WCS is reversed so the grid_WCS describes UU, VV, WW, STOKES, FREQ axes
+    The cf has axes [chan, pol, dy, dx, y, x] where
+    z, y, x are spatial axes in either sky or Fourier plane.
+    The order in the WCS is reversed so the grid_WCS describes
+    UU, VV, WW, STOKES, FREQ axes
 
-    The axes UU,VV have the same physical stride as the image, The axes DUU, DVV are subsampled.
+    The axes UU,VV have the same physical stride as the image.
+    The axes DUU, DVV are subsampled.
 
-    Convolution function holds the original sky plane projection in the projection_wcs.
+    Convolution function holds the original sky
+    plane projection in the projection_wcs.
 
     Here is an example::
 
@@ -1087,9 +1142,7 @@ class ConvolutionFunction(xarray.Dataset):
             grid_wcs:            WCS Keywords Number of WCS axes: 7 CTYPE : 'UU' ...
             projection_wcs:      WCS Keywords Number of WCS axes: 4 CTYPE : 'RA--...
             polarisation_frame:  stokesI
-
-
-    """
+    """  # noqa:E501
 
     __slots__ = ()
 
@@ -1103,18 +1156,21 @@ class ConvolutionFunction(xarray.Dataset):
 
     @classmethod
     def constructor(cls, data, cf_wcs=None, polarisation_frame=None):
-        """Create ConvolutionFunction
+        """
+        Create ConvolutionFunction
 
         :param data: Data for cf
         :param cf_wcs: Astropy WCS object for the grid
-        :param polarisation_frame: Polarisation_frame e.g. PolarisationFrame('linear')
+        :param polarisation_frame: Polarisation_frame
+                e.g. PolarisationFrame('linear')
         """
         nchan, npol, nw, oversampling, _, support, _ = data.shape
         frequency = cf_wcs.sub(["spectral"]).wcs_pix2world(range(nchan), 0)[0]
 
-        assert (
-            npol == polarisation_frame.npol
-        ), "Mismatch between requested image polarisation and actual visibility polarisation"
+        assert npol == polarisation_frame.npol, (
+            "Mismatch between requested image polarisation "
+            "and actual visibility polarisation"
+        )
 
         du = cf_wcs.wcs.cdelt[0]
         dv = cf_wcs.wcs.cdelt[1]
@@ -1142,12 +1198,20 @@ class ConvolutionFunction(xarray.Dataset):
                 oversampling,
                 endpoint=False,
             ),
-            "w": numpy.linspace(-wstep * nw / 2, wstep * nw / 2, nw, endpoint=False),
+            "w": numpy.linspace(
+                -wstep * nw / 2, wstep * nw / 2, nw, endpoint=False
+            ),
             "v": numpy.linspace(
-                cv - dv * support / 2, cv + dv * support / 2, support, endpoint=False
+                cv - dv * support / 2,
+                cv + dv * support / 2,
+                support,
+                endpoint=False,
             ),
             "u": numpy.linspace(
-                cu - du * support / 2, cu + du * support / 2, support, endpoint=False
+                cu - du * support / 2,
+                cu + du * support / 2,
+                support,
+                endpoint=False,
             ),
         }
 
@@ -1167,7 +1231,15 @@ class ConvolutionFunction(xarray.Dataset):
         npol = polarisation_frame.npol
         if data is None:
             data = numpy.zeros(
-                [nchan, npol, nw, oversampling, oversampling, support, support],
+                [
+                    nchan,
+                    npol,
+                    nw,
+                    oversampling,
+                    oversampling,
+                    support,
+                    support,
+                ],
                 dtype="complex",
             )
         else:
@@ -1179,8 +1251,11 @@ class ConvolutionFunction(xarray.Dataset):
                 oversampling,
                 support,
                 support,
-            ), "Polarisation frame {} and data shape {} are incompatible".format(
-                polarisation_frame.type, data.shape
+            ), (
+                "Polarisation frame {} and data shape "
+                "{} are incompatible".format(
+                    polarisation_frame.type, data.shape
+                )
             )
         data_vars = dict()
         data_vars["pixels"] = xarray.DataArray(data, dims=dims, coords=coords)
@@ -1256,10 +1331,14 @@ class ConvolutionFunctionAccessor(XarrayAccessorMixin):
 
 
 class SkyComponent:
-    """SkyComponents are used to represent compact sources on the sky. They possess direction,
-    flux as a function of frequency and polarisation, shape (with params), and polarisation frame.
+    """
+    SkyComponents are used to represent compact
+    sources on the sky. They possess direction,
+    flux as a function of frequency and polarisation,
+    shape (with params), and polarisation frame.
 
-    For example, the following creates and predicts the visibility from a collection of point sources
+    For example, the following creates and predicts
+    the visibility from a collection of point sources
     drawn from the GLEAM catalog::
 
         sc = create_low_test_skycomponents_from_gleam(flux_limit=1.0,
@@ -1273,7 +1352,7 @@ class SkyComponent:
         bm = create_low_test_beam(model=model)
         sc = apply_beam_to_skycomponent(sc, bm)
         vis = dft_skycomponent_visibility(vis, sc)
-    """
+    """  # noqa: E501
 
     def __init__(
         self,
@@ -1292,7 +1371,8 @@ class SkyComponent:
         :param name: user friendly name
         :param flux: numpy.array [nchan, npol]
         :param shape: str e.g. 'Point' 'Gaussian'
-        :param polarisation_frame: Polarisation_frame e.g. PolarisationFrame('stokesIQUV')
+        :param polarisation_frame: Polarisation_frame
+                e.g. PolarisationFrame('stokesIQUV')
         :param params: numpy.array shape dependent parameters
         """
 
@@ -1310,7 +1390,10 @@ class SkyComponent:
         assert len(self.flux.shape) == 2, flux
         assert (
             self.frequency.shape[0] == self.flux.shape[0]
-        ), "Frequency shape %s, flux shape %s" % (self.frequency.shape, self.flux.shape)
+        ), "Frequency shape %s, flux shape %s" % (
+            self.frequency.shape,
+            self.flux.shape,
+        )
         assert (
             polarisation_frame.npol == self.flux.shape[1]
         ), "Polarisation is %s, flux shape %s" % (
@@ -1343,10 +1426,18 @@ class SkyComponent:
 
 
 class SkyModel:
-    """A model for the sky, including an image, components, gaintable and a mask"""
+    """
+    A model for the sky, including an image,
+    components, gaintable and a mask
+    """
 
     def __init__(
-        self, image=None, components=None, gaintable=None, mask=None, fixed=False
+        self,
+        image=None,
+        components=None,
+        gaintable=None,
+        mask=None,
+        fixed=False,
     ):
         """A model of the sky as an image, components, gaintable and a mask
 
@@ -1360,15 +1451,11 @@ class SkyModel:
         if components is None:
             components = []
 
-        # if image is not None:
-        ##assert isinstance(image, Image), image
         self.image = image
 
         self.components = [sc for sc in components]
         self.gaintable = gaintable
 
-        # if mask is not None:
-        #    #assert isinstance(mask, Image), mask
         self.mask = mask
 
         self.fixed = fixed
@@ -1420,14 +1507,17 @@ class SkyModel:
 
 
 class Visibility(xarray.Dataset):
-    """Visibility xarray Dataset class
+    """
+    Visibility xarray Dataset class
 
     Visibility is defined to hold an observation with one direction.
 
-    The phasecentre is the direct of delay tracking i.e. n=0. If uvw are rotated then this
-    should be updated with the new delay tracking centre.
+    The phasecentre is the direct of delay tracking i.e. n=0.
+    If uvw are rotated then this should be updated with the
+    new delay tracking centre.
 
-    Polarisation frame is the same for the entire data set and can be stokesI, circular, circularnp, linear, linearnp
+    Polarisation frame is the same for the entire data set and can be
+    stokesI, circular, circularnp, linear, linearnp
 
     The configuration is stored as an attribute.
 
@@ -1457,9 +1547,7 @@ class Visibility(xarray.Dataset):
             polarisation_frame:  linear
             source:              unknown
             meta:                None
-
-
-    """
+    """  # noqa:E501
 
     __slots__ = ("_imaging_weight",)
 
@@ -1503,7 +1591,8 @@ class Visibility(xarray.Dataset):
         :param flags: Flags [:, nant, nant, nchan]
         :param weight: [:, nant, nant, nchan, npol]
         :param integration_time: Integration time [:]
-        :param polarisation_frame: Polarisation_Frame e.g. Polarisation_Frame("linear")
+        :param polarisation_frame: Polarisation_Frame
+                e.g. Polarisation_Frame("linear")
         :param source: Source name
         :param meta: Meta info
         """
@@ -1528,7 +1617,9 @@ class Visibility(xarray.Dataset):
 
         datavars = dict()
         datavars["integration_time"] = xarray.DataArray(
-            integration_time.astype(low_precision), dims=["time"], attrs={"units": "s"}
+            integration_time.astype(low_precision),
+            dims=["time"],
+            attrs={"units": "s"},
         )
         datavars["datetime"] = xarray.DataArray(
             Time(time / 86400.0, format="mjd", scale="utc").datetime64,
@@ -1586,7 +1677,9 @@ class Visibility(xarray.Dataset):
             DeprecationWarning,
         )
         if not new_img_weight.shape == self.weight.data.shape:
-            raise ValueError("New imaging weight does not match shape of weight")
+            raise ValueError(
+                "New imaging weight does not match shape of weight"
+            )
 
         self._imaging_weight = xarray.DataArray(
             new_img_weight.astype(self.weight.data.dtype),
@@ -1631,13 +1724,16 @@ class Visibility(xarray.Dataset):
             "rms": numpy.std(avis),
             "medianabs": numpy.median(avis),
         }
-        qa = QualityAssessment(origin="qa_visibility", data=data, context=context)
+        qa = QualityAssessment(
+            origin="qa_visibility", data=data, context=context
+        )
         return qa
 
     def performance_visibility(self):
         """Get info about the visibility
 
-        This works on a single visibility because we probably want to send this function to
+        This works on a single visibility because we
+        probably want to send this function to
         the cluster instead of bringing the data back
         :return: bvis info as a dictionary
         """
@@ -1666,10 +1762,11 @@ class Visibility(xarray.Dataset):
             selected_bvis = bvis.sel({"frequency": slice(0.9e8, 1.2e8)})
         To select by frequency and polarisation::
             selected_bvis = bvis.sel(
-                {"frequency": slice(0.9e8, 1.2e8), "polarisation": ["XX", "YY"]}
+              {"frequency": slice(0.9e8, 1.2e8), "polarisation": ["XX", "YY"]}
             ).dropna(dim="frequency", how="all")
 
-        Select uv range: flag in-place all visibility data outside uvrange uvmin, uvmax (wavelengths)
+        Select uv range: flag in-place all visibility data
+        outside uvrange uvmin, uvmax (wavelengths)
         The flags are set to 1 for all data outside the specified uvrange
 
         :param uvmin: Minimum uv to flag
@@ -1686,7 +1783,9 @@ class Visibility(xarray.Dataset):
             self["flags"].data[numpy.where(uvdist_lambda <= uvmin)] = 1
 
     def select_r_range(self, rmin=None, rmax=None):
-        """Select a visibility with stations in a range of distance from the array centre
+        """
+        Select a visibility with stations in a range
+        of distance from the array centre
         r is the distance from the array centre in metres
 
         :param rmax: Maximum r
@@ -1696,7 +1795,8 @@ class Visibility(xarray.Dataset):
         if rmin is None and rmax is None:
             return self
 
-        # Calculate radius from array centre (in 3D) and set it as a data variable
+        # Calculate radius from array centre (in 3D)
+        # and set it as a data variable
         xyz0 = self.configuration.xyz - self.configuration.xyz.mean("id")
         r = numpy.sqrt(xarray.dot(xyz0, xyz0, dims="spatial"))
         config = self.configuration.assign(radius=r)
@@ -1706,9 +1806,9 @@ class Visibility(xarray.Dataset):
         elif rmin is None:
             sub_config = config.where(config["radius"] < rmax, drop=True)
         else:
-            sub_config = config.where(config["radius"] > rmin, drop=True).where(
-                config["radius"] < rmax, drop=True
-            )
+            sub_config = config.where(
+                config["radius"] > rmin, drop=True
+            ).where(config["radius"] < rmax, drop=True)
 
         ids = list(sub_config.id.data)
         baselines = self.baselines.where(
@@ -1731,7 +1831,9 @@ class Visibility(xarray.Dataset):
         )
         return sub_bvis
 
-    def groupby(self, group, squeeze: bool = True, restore_coord_dims: bool = None):
+    def groupby(
+        self, group, squeeze: bool = True, restore_coord_dims: bool = None
+    ):
         """Override default method to group _imaging_weight"""
         grouped_dataset = super().groupby(
             group, squeeze=squeeze, restore_coord_dims=restore_coord_dims
@@ -1849,7 +1951,8 @@ class VisibilityAccessor(XarrayAccessorMixin):
         """
         Calculate and set uvw_lambda
         dims=[ntimes, nbaselines, nchan, spatial(3)]
-        Note: We omit the frequency and polarisation dependency of uvw for the calculation
+        Note: We omit the frequency and polarisation
+            dependency of uvw for the calculation
         """
         if self._uvw_lambda is None:
             k = (self._obj["frequency"].data / const.c).value
@@ -1874,7 +1977,8 @@ class VisibilityAccessor(XarrayAccessorMixin):
             3,
         ):
             raise ValueError(
-                "Data shape of new uvw_lambda incompatible with visibility setup"
+                "Data shape of new uvw_lambda "
+                "incompatible with visibility setup"
             )
 
         self._uvw_lambda = new_value
@@ -1917,7 +2021,8 @@ class VisibilityAccessor(XarrayAccessorMixin):
         Note that a numpy or dask array is returned, not an xarray dataarray
         """
         warnings.warn(
-            "flagged_imaging_weight is deprecated, please use flagged_weight instead",
+            "flagged_imaging_weight is deprecated, "
+            "please use flagged_weight instead",
             DeprecationWarning,
         )
         return self._obj.imaging_weight.data * (1 - self._obj["flags"].data)
@@ -1979,12 +2084,15 @@ class FlagTable(xarray.Dataset):
         datavars["flags"] = xarray.DataArray(
             flags, dims=["time", "baselines", "frequency", "polarisation"]
         )
-        datavars["integration_time"] = xarray.DataArray(integration_time, dims=["time"])
+        datavars["integration_time"] = xarray.DataArray(
+            integration_time, dims=["time"]
+        )
         datavars["channel_bandwidth"] = xarray.DataArray(
             channel_bandwidth, dims=["frequency"]
         )
         datavars["datetime"] = xarray.DataArray(
-            Time(time / 86400.0, format="mjd", scale="utc").datetime64, dims="time"
+            Time(time / 86400.0, format="mjd", scale="utc").datetime64,
+            dims="time",
         )
 
         attrs = dict()
@@ -2035,7 +2143,9 @@ class FlagTable(xarray.Dataset):
             "sum": numpy.sum(aflags),
             "medianabs": numpy.median(aflags),
         }
-        qa = QualityAssessment(origin="qa_flagtable", data=data, context=context)
+        qa = QualityAssessment(
+            origin="qa_flagtable", data=data, context=context
+        )
         return qa
 
 
