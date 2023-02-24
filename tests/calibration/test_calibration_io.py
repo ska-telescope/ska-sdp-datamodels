@@ -14,7 +14,6 @@ from astropy.units import Quantity
 from ska_sdp_datamodels.calibration.calibration_functions import (
     _generate_configuration_from_cal_table,
     _get_phase_centre_from_cal_table,
-    import_gaintable_from_casa_cal_table,
 )
 from ska_sdp_datamodels.calibration.calibration_model import GainTable
 from ska_sdp_datamodels.science_data_model import ReceptorFrame
@@ -361,4 +360,3 @@ def test_get_phase_centre_from_cal_table():
         equinox="J2000",
     )
     assert result == expected
-
