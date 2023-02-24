@@ -21,12 +21,6 @@ numpy = "^1.23, <1.24"
 pandas = "^1.5"
 xarray = "^2022.11.0"
 
-# optional dependencies; used by "extras"
-python-casacore = "^3.5.1"
-
-[tool.poetry.extras]
-python-casacore = ["python-casacore"]
-
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
 build = "^0.7.0"
